@@ -11,6 +11,7 @@ require_once 'Yap/Loader.php';
 
 $view = new \Yap\View(array('helper' => array('Yap\\View\\Helper' => 'Yap/View/Helper/')));
 echo $view->render('test.php');
+echo $view->HeadTitle('my title');
 /*
 
 $view = new \Yap\View(array('file' => 'test.php'));

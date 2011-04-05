@@ -74,10 +74,10 @@ class View
 
     public function __call($name, $values = null)
     {
-        $name = 'Yap\\View\\Helper\\' . $name;
+        $helperName = 'Yap\\View\\Helper\\' . $name;
         
-        $helper = new $name($this);
-        if (null !== $values) $helper->direct($values);
+        $helper = new $helperName($this);
+        if (null !== $values) $helper->$name($values);
         return $helper;
     }
 }

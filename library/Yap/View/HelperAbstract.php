@@ -1,7 +1,7 @@
 <?php
-namespace Yap\View\Helper;
+namespace Yap\View;
 
-abstract class Abs
+abstract class HelperAbstract
 {
     public $view = null;
 
@@ -9,10 +9,6 @@ abstract class Abs
     {
         $this->view = $view;
         return $this;
-    }
-
-    public function direct()
-    {
     }
 
     public function toString()

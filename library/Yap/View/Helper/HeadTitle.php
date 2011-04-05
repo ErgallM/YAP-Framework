@@ -1,18 +1,62 @@
 <?php
 namespace Yap\View\Helper;
+use Yap\View\HelperAbstract as HelperAbstract;
 
-require_once 'Yap/View/Helper/Abs.php';
-
-class HeadTitle extends Abs
+class HeadTitle extends HelperAbstract
 {
     private $_headTitleKey = 'YapViewHelperHeadTitle';
 
-    private $_stec = null;
+    static private $_separator = ' / ';
 
-    public function direct($title)
+    public function HeadTitle($title)
     {
-        if (null === $this->_stec) {
-            
+        if (empty($title)) return $this;
+        
+        $stec = (\Yap\Registry::isRegistered($this->_headTitleKey))
+                ? (array) \Yap\Registry::get($this->_headTitleKey)
+                : array();
+
+        foreach ((array) $title as $t) {
+            $stec[] = $t;
         }
+
+        \Yap\Registry::set($this->_headTitleKey, $stec);
+
+        return $this;
+    }
+
+    public function toString()
+    {
+        $result = array();
+        $stec = (\Yap\Registry::isRegistered($this->_headTitleKey))
+                ? (array) \Yap\Registry::get($this->_headTitleKey)
+                : array();
+
+        while ($title = array_pop($stec)) {
+            $result[] = $title;
+        }
+        
+        return (sizeof($result)) ? implode(self::$_separator, $result) : '';
+    }
+
+    /**
+     * Set headtitle separator
+     * @param  $separator
+     * @return HeadTitle
+     */
+    public function setSeparator($separator)
+    {
+        self::$_separator = $separator;
+        return $this;
+    }
+
+    /**
+     * Get headtitle separator
+     * 
+     * @return string
+     */
+    public function getSeparator()
+    {
+        return self::$_separator;
     }
 }
