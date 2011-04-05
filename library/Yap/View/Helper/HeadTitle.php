@@ -36,7 +36,9 @@ class HeadTitle extends HelperAbstract
             $result[] = $title;
         }
         
-        return (sizeof($result)) ? implode(self::$_separator, $result) : '';
+        return '<title>'
+            . ((sizeof($result)) ? implode(self::$_separator, $result) : '')
+        . '</title>' . PHP_EOL;
     }
 
     /**
