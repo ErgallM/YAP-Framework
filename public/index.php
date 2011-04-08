@@ -13,15 +13,7 @@ echo $view->render('test.php');
 echo $view->HeadTitle('my title');
 */
 
-$r = new Yap\Router\Route\Module('default', 'pages/:pageNumber/*', null, array('pageNumber' => '\d+'));
+$r = new Yap\Router\Route\Module('r', 'pages/:pageNumber/*', array('module' => 'pages', 'pageNumber' => 1), array('pageNumber' => '\d+'));
+var_dump($r->match('pages')); echo '<hr />';
 var_dump($r->match('pages/25')); echo '<hr />';
-var_dump($r->match('pages/25/23')); echo '<hr />';
-
-$r = new Yap\Router\Route\Module('default', 'shop/:categoryId/articles/:articleName', null, array('categoryId' => '\d+'));
-var_dump($r->match('shop/25')); echo '<hr />';
-var_dump($r->match('shop/25/articlesssss')); echo '<hr />';
-var_dump($r->match('shop/25/articles/Test')); echo '<hr />';
-var_dump($r->match('shop/25/articles/test/10')); echo '<hr />';
-
-$r = new Yap\Router\Route\Module('default', 'shop/category', array('module' => 'default', 'controller' => 'index'));
-var_dump($r->match('shop/category')); echo '<hr />';
+var_dump($r->match('pages/30/25')); echo '<hr />';
