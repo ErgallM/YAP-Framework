@@ -1,16 +1,16 @@
 <?php
 namespace Yap\Router;
 
-use Yap\Filter as Filter;
+require_once 'RouteInterface.php';
 
-abstract class RouteAbstract
+class Route implements RouteInterface
 {
-    private $_name = '';
-    private $_route = '';
-    private $_defaults = array();
-    private $_reqs = array();
-    private $_static = null;
-    private $_isStatic = false;
+    protected $_name = '';
+    protected $_route = '';
+    protected $_defaults = array();
+    protected $_reqs = array();
+    protected $_static = null;
+    protected $_isStatic = false;
 
     public function __construct($name, $route, $defaults = null, $reqs = null)
     {
