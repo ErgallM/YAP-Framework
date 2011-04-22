@@ -1,105 +1,127 @@
 <?php
 namespace Yap\Router;
 
+use Yap\Filter as Filter;
+
 abstract class RouteAbstract
 {
     private $_name = '';
-
     private $_route = '';
-
     private $_defaults = array();
-
     private $_reqs = array();
-
-    private $_static = '';
-
-    private $_match = '';
-
-    private $_mask = false;
-
+    private $_static = null;
+    private $_isStatic = false;
 
     public function __construct($name, $route, $defaults = null, $reqs = null)
     {
-        $this->_name = (string) $name;
+        $this->_name = $name;
+        $this->_route = $route = trim($route, '/');
+        if (is_array($defaults)) $this->_defaults = $defaults;
+        if (is_array($reqs)) $this->_reqs = $reqs;
 
-        $this->_route = (string) $route;
-
-        if (is_array($defaults) && sizeof($defaults)) {
-            $this->_defaults = $defaults;
-        }
-
-        if (is_array($reqs) && sizeof($reqs)) {
-            $this->_reqs = $reqs;
-        }
-
-        if (false !== ($staticPos = strpos($route, ':'))) {
-            $this->_static = substr($this->_route, 0, $staticPos);
-            $route = substr($this->_route, $staticPos);
-        }
-
-        if ('*' == substr($route, strlen($route) - 1)) {
-            $this->_mask = true;
-            $route = substr($route, 0, strlen($route) - 2);
-        }
-
-        $routeVars = explode('/', $route);
-        $matchArray = array();
-
-        while (sizeof($routeVars)) {
-            $var = array_shift($routeVars);
-            if (':' == substr($var, 0, 1)) {
-                $var = substr($var, 1);
-                
-                if (isset($this->_reqs[$var])) $var = $this->_reqs[$var];
-                else $var = '.*';
-
+        if (false !== ($pos = strpos($route, ':'))) {
+            $this->_static = trim(substr($route, 0, $pos), '/');
+            $route = substr($route, strlen($this->_static));
+        } else {
+            if (false === strpos($route, '*')) {
+                $this->_static = trim($route, '/');
+                $this->_isStatic = true;
             }
-
-            $matchArray[] = '(' . $var . ')';
         }
-
-        $this->_match = '#^' . implode($matchArray, '\/') . ((true === $this->_mask) ? '(?:(.*))' : '') . '$#i';
     }
 
+    /**
+     * Проверка на соответствие
+     *
+     * @param string $path
+     * @return false|array
+     */
     public function match($path)
     {
-        if (!empty($this->_static) && 0 !== strpos($path, $this->_static)) return false;
-        if ($path == $this->_static) return $this->_defaults;
+        $route = $this->_route;
+        $path = trim($path, '/');
 
-        $path = substr($path, strlen($this->_static));
+        // Если роутер полностью статичен
+        if ($this->_isStatic) {
+            if ($this->_static != $path) return false;
+            
+            return $this->_defaults;
+        }
 
-        echo "{match: '$this->_match'; path: '$path'} - ";
+        // Проверка статичной части
+        if (null !== $this->_static) {
+            if (0 !== strpos($path, $this->_static)) return false;
+            $route = trim(substr($route, strlen($this->_static)), '/');
+            $path = trim(substr($path, strlen($this->_static)), '/');
+        }
 
-        if (!preg_match($this->_match, $path)) {
+        $routeArray = explode('/', $route);
+        $pathArray = explode('/', $path);
+        $params = (is_array($this->_defaults)) ? $this->_defaults : array();
+
+        $match = $matchPath = '';
+
+        // Есть ли '*' в конце
+        $last = false;
+
+        while ($var = array_shift($routeArray)) {
+            // Не извлекает часть из пути, есть последний символ роутера *
+            if (!('*' == $var && !sizeof($routeArray)))
+                $part = array_shift($pathArray);
+
+            if (':' == substr($var, 0, 1)) {
+                // $var is variable
+
+                $varName = substr($var, 1);
+
+                // Если для переменной нету значиня по умолчанию и кусок пути пустой
+                if (!isset($this->_defaults[$varName]) && empty($part)) return false;
+
+                if (isset($this->_reqs[$varName])) $var = $this->_reqs[$varName];
+                else $var = '.*';
+
+                // Если для переменной есть значение по умолчанию и кусок пути пустой
+                if (isset($this->_defaults[$varName]) && empty($part)) $part = $this->_defaults[$varName];
+
+                $params[$varName] = $part;
+            } elseif ('*' == substr($var, 0, 1)) {
+                if (!sizeof($routeArray)) {
+                    $last = true;
+                    $match .= (empty($match)) ? "$var" : "\/$var";
+                    continue;
+                }
+                $var = '.*';
+            } else {
+                if ($var != $part) return false;
+            }
+
+            $match .= (empty($match)) ? "($var)" : "\/($var)";
+            $matchPath .= (empty($matchPath)) ? "$part" : "/$part";
+        }
+
+        // Если есть дополнительные переменные, а их вводить нельзя
+        if (sizeof($pathArray) && !$last) return false;
+
+        $match = "#^$match$#i";
+
+        if (preg_match($match, $matchPath)) {
+
+            // Если остались переменные в пути, определяем их
+            if (sizeof($pathArray)) {
+                while (sizeof($pathArray)) {
+                    $key = array_shift($pathArray);
+                    $value = array_shift($pathArray);
+
+                    // Дополнительными переменными нельзя сбить основные
+                    if (!isset($params[$key])) $params[$key] = $value;
+                }
+            }
+
+            // Возвращаем параметры
+            return $params;
+            
+        } else {
             return false;
         }
-
-        $params = $this->_defaults;
-
-        $routeVars = explode('/', substr($this->_route, strlen($this->_static)));
-        $pathVars = explode('/', $path);
-
-        while (sizeof($routeVars)) {
-            $key = array_shift($routeVars);
-            $value = array_shift($pathVars);
-
-            if (':' == substr($key, 0, 1)) {
-                $key = substr($key, 1);
-
-                if (empty($value) && !empty($this->_defaults[$key])) $value = $this->_defaults[$key];
-                $params[$key] = $value;
-            }
-        }
-
-        if (true === $this->_mask && sizeof($pathVars)) {
-            while (sizeof($pathVars)) {
-                $key = array_shift($pathVars);
-                $value = array_shift($pathVars);
-
-                if (!isset($params[$key])) $params[$key] = $value;
-            }
-        }
-
-        return $params;
     }
 }
