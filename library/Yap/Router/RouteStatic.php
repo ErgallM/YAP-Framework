@@ -23,4 +23,8 @@ class RouteStatic implements RouteInterface
         return $this->_defaults;
     }
 
+    public function getName()
+    {
+        return $this->_name;
+    }
 }

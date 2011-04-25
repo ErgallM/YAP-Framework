@@ -11,4 +11,12 @@ interface RouteInterface
      * @return false|array
      */
     public function match($path);
+
+    /**
+     * Возвращает имя роутера
+     * 
+     * @abstract
+     * @return string
+     */
+    public function getName();
 }

@@ -61,6 +61,8 @@ class Route implements RouteInterface
 
         $match = $matchPath = '';
 
+        var_dump($routeArray);
+
         // Есть ли '*' в конце
         $last = false;
 
@@ -85,12 +87,12 @@ class Route implements RouteInterface
 
                 $params[$varName] = $part;
             } elseif ('*' == substr($var, 0, 1)) {
+                $var = '.*';
                 if (!sizeof($routeArray)) {
                     $last = true;
                     $match .= (empty($match)) ? "$var" : "\/$var";
                     continue;
                 }
-                $var = '.*';
             } else {
                 if ($var != $part) return false;
             }
@@ -101,6 +103,9 @@ class Route implements RouteInterface
 
         // Если есть дополнительные переменные, а их вводить нельзя
         if (sizeof($pathArray) && !$last) return false;
+
+
+        echo '{' . $match . '}';
 
         $match = "#^$match$#i";
 
@@ -123,5 +128,10 @@ class Route implements RouteInterface
         } else {
             return false;
         }
+    }
+
+    public function getName()
+    {
+        return $this->_name;
     }
 }
