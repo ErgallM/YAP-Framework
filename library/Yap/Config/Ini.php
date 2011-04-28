@@ -1,62 +1,82 @@
 <?php
 namespace Yap\Config;
 
+/**
+ * Загрузка настоек из ini файлов
+ * 
+ * @throws \Exception
+ */
 class Ini extends \Yap\Config
 {
-    public function __construct($ini)
+    public function __construct($ini, $selector = null)
     {
-        $config = $this->_loadIniFile($ini);
+        $config = $this->_loadIniFile($ini, $selector);
         parent::__construct($config);
     }
 
-    private function _loadIniFile($fileName)
+    private function _loadIniFile($fileName, $selector = null)
     {
         $content = parse_ini_file($fileName, true);
         $config = array();
 
-        function parserNodeName($name, $value)
-        {
-            echo $name . PHP_EOL;
-
-            if (false === ($pos = strpos($name, '.'))) {
-                if ('[]' == $value) {
-                    $value = array();
-                } else if ('[' == substr($value, 0, 1) && ']' == substr($value, -1)) {
-                    $value = explode(',', substr($value, 1, -1));
+        // Проверка на существование selector'а
+        if (null !== $selector) {
+            $foundSelector = false;
+            foreach ($content as $nodeName => $nodeValue) {
+                if (false === ($pos = strpos($nodeName, ':'))) {
+                    if ($nodeName == $selector) $foundSelector = true;
+                } else {
+                    if (substr($nodeName, 0, $pos) == $selector) $foundSelector = true;
                 }
-                
-                return array($name => $value);
-            } else {
-                $nodeName = substr($name, 0, $pos);
-                $name = substr($name, $pos + 1);
-                return array($nodeName => parserNodeName($name, $value));
             }
-        };
+            if (false === $foundSelector) throw new \Exception("Can't found selector '$selector'");
+        }
+
+        // Парсинг строки элементов
+        function parserNodeName(&$config, $nodeName, $nodeValue)
+        {
+            if (false === ($pos = strpos($nodeName, '.'))) {
+
+                // Преобразовываем значение [...] в массив
+                if ('[' == substr($nodeValue, 0, 1) && ']' == substr($nodeValue, -1)) {
+                    $nodeValue = (array) explode(',', substr($nodeValue, 1, -1));
+                }
+
+                $config[$nodeName] = $nodeValue;
+            } else {
+                $node = substr($nodeName, $pos + 1);
+                $nodeName = substr($nodeName, 0, $pos);
+
+                if (!isset($config[$nodeName])) $config[$nodeName] = array();
+
+                parserNodeName($config[$nodeName], $node, $nodeValue);
+            }
+        }
 
         foreach ($content as $nodeName => $nodeValue) {
-            $nodeData = array();
+            // Наследование элементов
+            if (false !== ($pos = strpos($nodeName, ':'))) {
+                $parentName = substr($nodeName, $pos + 1);
+                $nodeName = substr($nodeName, 0, $pos);
+
+                if (!isset($config[$parentName])) throw new \Exception("Can't found '$parentName' selection");
+                $config[$nodeName] = $config[$parentName];
+            }
 
             if (is_string($nodeName) && is_string($nodeValue)) {
-                $nodeData = parserNodeName($nodeName, $nodeValue);
-
-            } elseif (is_string($nodeName) && is_array($nodeValue)) {
-
-                if (false !== ($pos = strpos($nodeName, ':'))) {
-                    $parentNodeName = substr($nodeName, $pos + 1);
-                    $nodeName = substr($nodeName, 0, $pos);
-
-                    if (!isset($config[$parentNodeName])) throw new \Exception("Can't found section '$parentNodeName'");
-                    $nodeData[$nodeName] = $config[$parentNodeName];
-                }
-
-                if (!isset($nodeData[$nodeName])) $nodeData[$nodeName] = array();
+                parserNodeName($config, $nodeName, $nodeValue);
+            } else if (is_string($nodeName) && is_array($nodeValue)) {
+                if (!isset($config[$nodeName])) $config[$nodeName] = array();
 
                 foreach ($nodeValue as $key => $value) {
-                    $nodeData[$nodeName] = array_merge_recursive($nodeData[$nodeName], parserNodeName($key, $value));
+                    parserNodeName($config[$nodeName], $key, $value);
                 }
             }
 
-            $config = array_merge($config, $nodeData);
+            // Если нужно вернуть selector
+            if (null !== $selector && $nodeName == $selector) {
+                return $config[$nodeName];
+            }
         }
 
         return $config;
