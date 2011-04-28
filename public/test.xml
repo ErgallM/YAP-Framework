@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <public t1="50">
+        <ar>
+            <t2>25</t2>
+            <t3>30</t3>
+            <t4><t5 value="1" /></t4>
+        </ar>
+        <s>message</s>
+        <clearArray>
+            <value>1</value>
+            <value>2</value>
+            <value>3</value>
+        </clearArray>
+    </public>
+    <debug extends="public">
+        <t1>25</t1>
+        <t1 value="25" />
+    </debug>
+</root>

@@ -3,31 +3,48 @@ namespace Yap\Config;
 
 class Xml extends \Yap\Config
 {
-    public function __construct($xml, $section = null)
+    public function __construct($xml, $selection = null) {
+        $config = $this->_loadXmlFile($xml, $selection);
+        parent::__construct($config);
+    }
+    
+    private function _loadXmlFile($xml, $selector = null)
     {
-        if (empty($xml)) {
-            throw new \Exception("Filename is not set");
-        }
+        $content = simplexml_load_file($xml);
+        $config = array();
 
-        if (strstr($xml, '<?xml')) {
-            $config = simplexml_load_string($xml);
-        } else {
-            $config = simplexml_load_file($xml);
-        }
+        function parserNode(&$config, \SimpleXMLElement $node) {
+            $nodeName = $node->getName();
+            $attributes = (array) $node->attributes();
+            if (!empty($attributes)) $attributes = $attributes['@attributes'];
 
-        if (null === $section) {
-            $result = array();
-            foreach ($config as $name => $values) {
-                $result[$name] = $values;
+            $nodeValue = trim((isset($attributes['value'])) ? (string) $attributes['value'] : (string) $node);
+            unset($attributes['value']);
+
+            if (!isset($config[$nodeName])) $config[$nodeName] = array();
+
+            foreach ($attributes as $attrName => $attrValue) {
+                if ('extends' == $attrName) {
+                    if (!isset($config[$attrValue])) throw new \Exception("Can't found '$attrValue' selection");
+                    $config[$nodeName] = $config[$attrValue];
+                } else {
+                    $config[$nodeName][$attrName] = $attrValue;
+                }
             }
 
-            parent::__construct($result);
-        } else {
-            if (!isset($config->$section)) {
-                throw new \Exception("Section '$section' not found in $xml");
+            if (!$node->count()) {
+                $config[$nodeName] = $nodeValue;
+            } else {
+                foreach ($node->children() as $child) {
+                    parserNode($config[$nodeName], $child);
+                }
             }
+        };
 
-            parent::__construct($$config->$section);
+        foreach ($content as $node) {
+            parserNode($config, $node);
         }
+
+        return $config;
     }
 }

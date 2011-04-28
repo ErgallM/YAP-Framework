@@ -7,8 +7,7 @@ require_once 'Yap/Loader.php';
 
 \Yap\Loader::initAutoloader();
 
-
-$config = new \Yap\Config\Ini('test.ini');
+$config = new \Yap\Config\Xml('test.xml');
 var_dump($config->toArray());
 
 
