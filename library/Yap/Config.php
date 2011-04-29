@@ -16,7 +16,9 @@ class Config
     public function __get($name)
     {
         if (!$this->__isset($name)) throw new \Exception("$name is not set");
-        return $this->_params[$name];
+
+        if (is_array($this->_params[$name])) return new Config($this->_params[$name]);
+        else return $this->_params[$name];
     }
 
     public function __isset($name)
