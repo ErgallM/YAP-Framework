@@ -3,7 +3,8 @@ namespace Yap\Config;
 
 class Xml extends \Yap\Config
 {
-    public function __construct($xml, $selection = null) {
+    public function __construct($xml, $selection = null)
+    {
         $config = $this->_loadXmlFile($xml, $selection);
         parent::__construct($config);
     }
@@ -13,15 +14,20 @@ class Xml extends \Yap\Config
         $content = simplexml_load_file($xml);
         $config = array();
 
-        function parserNode(&$config, \SimpleXMLElement $node) {
+        if (null !== $selector && !$content->$selector) throw new \Exception("Can't found selector '$selector'");
+
+        function parserNode(&$config, \SimpleXMLElement $node, $isArray = false) {
             $nodeName = $node->getName();
             $attributes = (array) $node->attributes();
             if (!empty($attributes)) $attributes = $attributes['@attributes'];
 
+            $nowArray = (!empty($attributes['isArray'])) ? true : false;
+            unset($attributes['isArray']);
+
             $nodeValue = trim((isset($attributes['value'])) ? (string) $attributes['value'] : (string) $node);
             unset($attributes['value']);
 
-            if (!isset($config[$nodeName])) $config[$nodeName] = array();
+            if (!isset($config[$nodeName]) && !$isArray) $config[$nodeName] = array();
 
             foreach ($attributes as $attrName => $attrValue) {
                 if ('extends' == $attrName) {
@@ -33,16 +39,24 @@ class Xml extends \Yap\Config
             }
 
             if (!$node->count()) {
-                $config[$nodeName] = $nodeValue;
+                if ($isArray) {
+                    $config[] = $nodeValue;
+                } else {
+                    $config[$nodeName] = $nodeValue;
+                }
             } else {
                 foreach ($node->children() as $child) {
-                    parserNode($config[$nodeName], $child);
+                    parserNode($config[$nodeName], $child, $nowArray);
                 }
             }
         };
 
         foreach ($content as $node) {
             parserNode($config, $node);
+
+            if (null !== $selector && $node->getName() == $selector) {
+                return $config[$selector];
+            }
         }
 
         return $config;

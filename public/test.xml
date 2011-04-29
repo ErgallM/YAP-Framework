@@ -7,7 +7,7 @@
             <t4><t5 value="1" /></t4>
         </ar>
         <s>message</s>
-        <clearArray>
+        <clearArray isArray="true">
             <value>1</value>
             <value>2</value>
             <value>3</value>
