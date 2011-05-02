@@ -15,14 +15,12 @@
     <filter>
         <!-- не смотрим на следующие директории -->
         <blacklist>
-            <directory suffix=".php">/usr/local</directory>
             <directory suffix=".php">../tests</directory>
         </blacklist>
         <!-- смотрим лишь на следующие директории -->
         <whitelist>
-            <directory suffix=".php">../Yap</directory>
+            <directory suffix=".php">../library/Yap</directory>
             <exclude>
-                <!--<directory suffix=".phtml">../application</directory>
                 <file>../application/Bootstrap.php</file>-->
             </exclude>
         </whitelist>
