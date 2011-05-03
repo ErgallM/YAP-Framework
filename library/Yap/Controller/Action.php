@@ -1,5 +1,5 @@
 <?php
-namespace \Yap\Controller;
+namespace Yap\Controller;
 
 class Action
 {
