@@ -7,8 +7,5 @@ require_once 'Yap/Loader.php';
 
 \Yap\Loader::initAutoloader();
 
-$config = new \Yap\Config\Xml('test.xml');
-var_dump($config->toArray());
-
 
 echo 'time: ' . round(microtime(true) - $time_start, 10) . PHP_EOL;

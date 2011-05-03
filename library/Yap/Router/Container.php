@@ -1,7 +1,7 @@
 <?php
 namespace Yap\Router;
 
-class Conteiner
+class Container
 {
     protected $_routes = array();
     protected $_routesKey = array();

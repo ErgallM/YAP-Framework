@@ -46,7 +46,7 @@ class Route implements RouteInterface
 
         // Проверка статичной части
         if (null !== $this->_static) {
-            if (0 !== strpos($path, $this->_static)) {
+            if (0 !== strpos($path . '/', $this->_static . '/')) {
                 return false;
             }
             $route = trim(substr($route, strlen($this->_static)), '/');
@@ -58,8 +58,6 @@ class Route implements RouteInterface
         $params = (is_array($this->_defaults)) ? $this->_defaults : array();
 
         $match = $matchPath = '';
-
-        var_dump($routeArray);
 
         // Есть ли '*' в конце
         $last = false;
@@ -113,9 +111,6 @@ class Route implements RouteInterface
         if (sizeof($pathArray) && !$last) {
             return false;
         }
-
-
-        echo '{' . $match . '}';
 
         $match = "#^$match$#i";
 
