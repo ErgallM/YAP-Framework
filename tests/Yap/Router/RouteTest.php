@@ -12,7 +12,11 @@ class RouteTest extends PHPUnit_Framework_TestCase
     public function setUp() 
     {
         parent::setUp();
-        $this->_route = new \Yap\Router\Route($this->_name, $this->_routeRegexp, array('pageNumber' => $this->_pageNumber));
+        $this->_route = new \Yap\Router\Route(new \Yap\Config(array(
+                                                   'name' => $this->_name,
+                                                   'route' => $this->_routeRegexp,
+                                                   'defaults' => array('pageNumber' => $this->_pageNumber)
+                                              )));
     }
     
     public function testType() 

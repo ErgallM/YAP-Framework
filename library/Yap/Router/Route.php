@@ -12,16 +12,29 @@ class Route implements RouteInterface
     protected $_static = null;
     protected $_isStatic = false;
 
-    public function __construct($name, $route, $defaults = null, $reqs = null)
+
+    /**
+     * $name, $route, $defaults, $reqs
+     *
+     * @throws \Exception
+     * @param \Yap\Config|array $options
+     */
+    public function __construct($options)
     {
-        $this->setName($name);
-        if (is_array($defaults)) {
-            $this->setDefaults($defaults);
+        if ($options instanceof \Yap\Config) {
+            $options = $options->toArray();
         }
-        if (is_array($reqs)) {
-            $this->_reqs = $reqs;
+
+        if (!is_array($options)) throw new \Exception('Options can be array or \Yap\Config, giving "' . gettype($options) . '"');
+
+        $this->setName($options['name']);
+        if (isset($options['defaults']) && is_array($options['defaults'])) {
+            $this->setDefaults($options['defaults']);
         }
-        $this->setRoute($route);
+        if (isset($options['reqs']) && is_array($options['reqs'])) {
+            $this->_reqs = $options['reqs'];
+        }
+        $this->setRoute($options['route']);
     }
 
     /**
