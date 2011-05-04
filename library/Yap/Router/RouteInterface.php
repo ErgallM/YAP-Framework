@@ -13,10 +13,32 @@ interface RouteInterface
     public function match($path);
 
     /**
-     * Возвращает имя роутера
+     * Get route name
      * 
      * @abstract
      * @return string
      */
     public function getName();
+
+    /**
+     * Set route name
+     *
+     * @abstract
+     * @param string $name
+     * @return RouteInterface
+     */
+    public function setName($name);
+
+    /**
+     * Set default variable
+     * @param array $defaults
+     */
+    public function setDefaults(array $defaults);
+
+    /**
+     * Get default variable
+     * @abstract
+     * @return array
+     */
+    public function getDefaults();
 }

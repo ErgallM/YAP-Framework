@@ -27,14 +27,15 @@ class Route implements RouteInterface
 
         if (!is_array($options)) throw new \Exception('Options can be array or \Yap\Config, giving "' . gettype($options) . '"');
 
-        $this->setName($options['name']);
+        $this->setName($options['name'])
+             ->setRoute($options['route']);
+
         if (isset($options['defaults']) && is_array($options['defaults'])) {
             $this->setDefaults($options['defaults']);
         }
         if (isset($options['reqs']) && is_array($options['reqs'])) {
-            $this->_reqs = $options['reqs'];
+            $this->setReqs($options['reqs']);
         }
-        $this->setRoute($options['route']);
     }
 
     /**
@@ -149,34 +150,66 @@ class Route implements RouteInterface
             return false;
         }
     }
-    
+
+    /**
+     * Set route name
+     *
+     * @param string $name
+     * @return Route
+     */
     public function setName($name)
     {
         $this->_name = $name;
         return $this;
     }
 
+    /**
+     * Get route name
+     *
+     * @return string
+     */
     public function getName()
     {
         return $this->_name;
     }
 
-    public function setDefaults($defaults)
+    /**
+     * Set default variable
+     *
+     * @param array $defaults
+     * @return Route
+     */
+    public function setDefaults(array $defaults)
     {
         $this->_defaults = $defaults;
         return $this;
     }
 
+    /**
+     * Get default variable
+     *
+     * @return array
+     */
     public function getDefaults()
     {
         return $this->_defaults;
     }
 
+    /**
+     * Is static route
+     * @return bool
+     */
     public function isStatic()
     {
         return $this->_isStatic;
     }
 
+    /**
+     * Set route string
+     *
+     * @param string $route
+     * @return Route
+     */
     public function setRoute($route)
     {
         $this->_route = $route = trim($route, '/');
@@ -194,13 +227,34 @@ class Route implements RouteInterface
         return $this;
     }
 
+    /**
+     * Get route string
+     *
+     * @return string
+     */
     public function getRoute()
     {
         return $this->_route;
     }
 
+    /**
+     * Get static path of route
+     *
+     * @return string|null
+     */
     public function getStatic()
     {
         return $this->_static;
+    }
+
+    public function setReqs(array $reqs)
+    {
+        $this->_reqs = $reqs;
+        return $this;
+    }
+
+    public function getReqs()
+    {
+        return $this->_reqs;
     }
 }
