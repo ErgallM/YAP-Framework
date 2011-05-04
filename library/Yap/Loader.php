@@ -29,7 +29,7 @@ class Loader
 
     static public function loadClass($className, $dirs = null)
     {
-        echo 'start load class = ' . $className . PHP_EOL;
+        //echo 'start load class = ' . $className . PHP_EOL;
         if (class_exists($className, false) || interface_exists($className, false)) {
             return true;
         }

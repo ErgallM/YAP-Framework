@@ -23,7 +23,7 @@ class Config
 
     public function __isset($name)
     {
-        return isset($this->_params);
+        return isset($this->_params[$name]);
     }
 
     public function __unset($name)
@@ -51,9 +51,9 @@ class Config
         return $this;
     }
 
-    public function __construct($options)
+    public function __construct($options = null)
     {
-        if (is_array($options) && !empty($options)) {
+        if (is_array($options) && sizeof($options)) {
             $this->setFromArray($options);
         }
     }
