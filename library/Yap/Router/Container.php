@@ -21,6 +21,17 @@ class Container
     }
 
     /**
+     * Get route
+     *
+     * @param string $name
+     * @return \Yap\Route\RouteInterface|null
+     */
+    public function getRoute($name)
+    {
+        return (!isset($this->_routesKey[$name])) ? null : $this->_routes[$this->_routesKey[$name]];
+    }
+
+    /**
      * Проверяет все роутеры на соответствие
      * Возвращает <b>false</b> при неудачи или
      * <b>array('routeName' => ...</b>
@@ -32,7 +43,7 @@ class Container
     {
         for ($x = sizeof($this->_routes); $x--; $x >= 0) {
             $route = $this->_routes[$x];
-            if (false !== ($params = $route->match($path))) {
+            if (null !== $route && false !== ($params = $route->match($path))) {
                 $params['routeName'] = $route->getName();
 
                 return $params;
@@ -40,5 +51,21 @@ class Container
         }
 
         return false;
+    }
+
+    /**
+     * Remove route
+     *
+     * @param string $name
+     * @return Container
+     */
+    public function removeRoute($name)
+    {
+        if (isset($this->_routesKey[$name])) {
+            $this->_routes[$this->_routesKey[$name]] = null;
+            unset($this->_routesKey[$name]);
+        }
+
+        return $this;
     }
 }

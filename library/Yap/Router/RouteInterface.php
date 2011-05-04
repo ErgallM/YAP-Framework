@@ -41,4 +41,6 @@ interface RouteInterface
      * @return array
      */
     public function getDefaults();
+
+    public function __invoke($path);
 }

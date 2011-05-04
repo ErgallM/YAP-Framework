@@ -46,8 +46,16 @@ class Route implements RouteInterface
      */
     public function match($path)
     {
+        // Удаление по 1 слешу с концов строки
+        $trim = function($url) {
+            $url = trim($url);
+            if ('/' == substr($url, 0, 1)) $url = substr($url, 1);
+            if ('/' == substr($url, -1)) $url = substr($url, 0, -1);
+            return $url;
+        };
+
         $route = $this->_route;
-        $path = trim($path, '/');
+        $path = $trim($path);
 
         // Если роутер полностью статичен
         if ($this->_isStatic) {
@@ -63,8 +71,8 @@ class Route implements RouteInterface
             if (0 !== strpos($path . '/', $this->_static . '/')) {
                 return false;
             }
-            $route = trim(substr($route, strlen($this->_static)), '/');
-            $path = trim(substr($path, strlen($this->_static)), '/');
+            $route = $trim(substr($route, strlen($this->_static)));
+            $path = $trim(substr($path, strlen($this->_static)));
         }
 
         $routeArray = explode('/', $route);
@@ -77,6 +85,8 @@ class Route implements RouteInterface
         $last = false;
 
         while ($var = array_shift($routeArray)) {
+            $part = null;
+            
             // Не извлекает часть из пути, есть последний символ роутера *
             if (!('*' == $var && !sizeof($routeArray)))
                 $part = array_shift($pathArray);
@@ -104,11 +114,13 @@ class Route implements RouteInterface
                 }
 
                 $params[$varName] = $part;
-            } elseif ('*' == substr($var, 0, 1)) {
+            } else if ('*' == substr($var, 0, 1)) {
                 $var = '.*';
                 if (!sizeof($routeArray)) {
                     $last = true;
-                    $match .= (empty($match)) ? "$var" : "\/$var";
+                    if (null !== $part) {
+                        $match .= (empty($match)) ? "(?:($var))" : "(?:\/($var))?";
+                    }
                     continue;
                 }
             } else {
@@ -256,5 +268,10 @@ class Route implements RouteInterface
     public function getReqs()
     {
         return $this->_reqs;
+    }
+
+    public function __invoke($path)
+    {
+        return $this->match($path);
     }
 }

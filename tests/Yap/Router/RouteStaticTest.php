@@ -21,7 +21,7 @@ class RouteStaticTest extends PHPUnit_Framework_TestCase
 
     public function testType()
     {
-        $this->assertType('\Yap\Router\RouteStatic', $this->_route);
+        $this->assertInstanceOf('\Yap\Router\RouteStatic', $this->_route);
     }
 
     public function testCanGetSetName()
@@ -62,7 +62,8 @@ class RouteStaticTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($this->_module, $result['module']);
 
         //Делаем те же тесты, но с завершающими слешами
-        $result = $this->_route->match('pages/about/');
+        $route = $this->_route;
+        $result = $route('pages/about/');
         //Результат должен быть массивом...
         $this->assertInternalType('array', $result);
         //... и этот массив должен содержать module

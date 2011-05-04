@@ -86,4 +86,9 @@ class RouteStatic implements RouteInterface
     {
         return $this->_route;
     }
+
+    public function __invoke($path)
+    {
+        return $this->match($path);
+    }
 }
