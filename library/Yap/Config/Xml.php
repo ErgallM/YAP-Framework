@@ -27,6 +27,11 @@ class Xml extends \Yap\Config
             $nodeValue = trim((isset($attributes['value'])) ? (string) $attributes['value'] : (string) $node);
             unset($attributes['value']);
 
+            if (!empty($nodeValue)) {
+                $config[$nodeName] = $nodeValue;
+                return;
+            }
+
             if (!isset($config[$nodeName]) && !$isArray) $config[$nodeName] = array();
 
             foreach ($attributes as $attrName => $attrValue) {
@@ -39,10 +44,12 @@ class Xml extends \Yap\Config
             }
 
             if (!$node->count()) {
-                if ($isArray) {
-                    $config[] = $nodeValue;
-                } else {
-                    $config[$nodeName] = $nodeValue;
+                if (!empty($nodeValue)) {
+                    if ($isArray) {
+                        $config[] = $nodeValue;
+                    } else {
+                        $config[$nodeName][] = $nodeValue;
+                    }
                 }
             } else {
                 foreach ($node->children() as $child) {

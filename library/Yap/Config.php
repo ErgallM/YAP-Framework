@@ -4,7 +4,7 @@ namespace Yap;
 /**
  * @throws \Exception
  */
-class Config
+class Config implements \IteratorAggregate
 {
     protected $_params = array();
 
@@ -53,8 +53,17 @@ class Config
 
     public function __construct($options = null)
     {
+        if ($options instanceof Config) {
+            $options = $options->toArray();
+        }
+        
         if (is_array($options) && sizeof($options)) {
             $this->setFromArray($options);
         }
+    }
+
+    public function getIterator()
+    {
+        return new \ArrayIterator($this->_params);
     }
 }

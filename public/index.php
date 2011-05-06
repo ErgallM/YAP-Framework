@@ -7,11 +7,10 @@ require_once 'Yap/Loader.php';
 
 \Yap\Loader::initAutoloader();
 
-$parterRoute = new \Yap\Router\Route(array(
-                                                    'name' => '4',
-                                                    'route' => '*',
-                                                    'defaults' => array('categoryId' => 10)
-                                                  ));
-var_dump($parterRoute->match('/sadads/asdasda/sad'));
+$config = new \Yap\Config\Xml('test.xml');
+$container = new \Yap\Router\Container();
+$container->addRoutes($config);
+
+var_dump($container->match('/pages/25'));
 
 echo 'time: ' . round(microtime(true) - $time_start, 10) . PHP_EOL;
