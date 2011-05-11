@@ -17,8 +17,7 @@ class Config implements \IteratorAggregate
     {
         if (!$this->__isset($name)) throw new \Exception("$name is not set");
 
-        if (is_array($this->_params[$name])) return new Config($this->_params[$name]);
-        else return $this->_params[$name];
+        return $this->_params[$name];
     }
 
     public function __isset($name)
@@ -34,6 +33,15 @@ class Config implements \IteratorAggregate
     public function toArray()
     {
         return $this->_params;
+    }
+
+    public function __call($name, $params)
+    {
+        if (isset($this->_params[$name])) {
+            return new Config($this->_params[$name]);
+        }
+
+        return null;
     }
 
     /**
