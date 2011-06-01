@@ -8,9 +8,5 @@ require_once 'Yap/Loader.php';
 
 \Yap\Loader::initAutoloader();
 
-$application = new \Yap\Application('test.ini');
-$application->run();
-
-
 
 echo 'time: ' . round(microtime(true) - $time_start, 10) . PHP_EOL;
