@@ -27,12 +27,14 @@ class Xml extends \Yap\Config
             $nodeValue = trim((isset($attributes['value'])) ? (string) $attributes['value'] : (string) $node);
             unset($attributes['value']);
 
+            if (!isset($config[$nodeName]) && $isArray) $config[$nodeName] = array();
+            
             if (!empty($nodeValue)) {
-                $config[$nodeName] = $nodeValue;
+                if ($isArray) $config[$nodeName][] = $nodeValue;
+                else $config[$nodeName] = $nodeValue;
+
                 return;
             }
-
-            if (!isset($config[$nodeName]) && !$isArray) $config[$nodeName] = array();
 
             foreach ($attributes as $attrName => $attrValue) {
                 if ('extends' == $attrName) {
