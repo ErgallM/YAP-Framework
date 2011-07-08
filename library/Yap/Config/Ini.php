@@ -38,8 +38,10 @@ class Ini extends \Yap\Config
             if (false === ($pos = strpos($nodeName, '.'))) {
 
                 // Преобразовываем значение [...] в массив
-                if ('[' == substr($nodeValue, 0, 1) && ']' == substr($nodeValue, -1)) {
-                    $nodeValue = (array) explode(',', substr($nodeValue, 1, -1));
+                if (is_string($nodeValue)) {
+                    if ('[' == substr($nodeValue, 0, 1) && ']' == substr($nodeValue, -1)) {
+                        $nodeValue = (array) explode(',', substr($nodeValue, 1, -1));
+                    }
                 }
 
                 $config[$nodeName] = $nodeValue;
