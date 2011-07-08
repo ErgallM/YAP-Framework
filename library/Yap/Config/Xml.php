@@ -28,8 +28,8 @@ class Xml extends \Yap\Config\Config
             unset($attributes['value']);
 
             if (!isset($config[$nodeName]) && $isArray) $config[$nodeName] = array();
-            
-            if (!empty($nodeValue)) {
+
+            if (strlen($nodeValue)) {
                 if ($isArray) $config[$nodeName][] = $nodeValue;
                 else $config[$nodeName] = $nodeValue;
 
@@ -46,7 +46,7 @@ class Xml extends \Yap\Config\Config
             }
 
             if (!$node->count()) {
-                if (!empty($nodeValue)) {
+                if (strlen($nodeValue)) {
                     if ($isArray) {
                         $config[] = $nodeValue;
                     } else {
