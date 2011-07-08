@@ -29,13 +29,13 @@ class RouteTest extends PHPUnit_Framework_TestCase
     public function setUp() 
     {
         parent::setUp();
-        $this->_route = new \Yap\Router\Route(new \Yap\Config(array(
+        $this->_route = new \Yap\Router\Route(new \Yap\Config\Config(array(
                                                    'name' => $this->_routeName,
                                                    'route' => $this->_routeRegexp,
                                                    'defaults' => array('pageNumber' => $this->_pageNumber)
                                               )));
 
-        $this->_routeStar = new \Yap\Router\Route(new \Yap\Config(array(
+        $this->_routeStar = new \Yap\Router\Route(new \Yap\Config\Config(array(
                                                     'name' => $this->_name . '2',
                                                     'route' => $this->_routeStarRegexp,
                                                     'reqs' => array('categoryId' => '\d+', 'articleId' => '\d+')

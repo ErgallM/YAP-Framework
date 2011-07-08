@@ -6,7 +6,7 @@ namespace Yap\Config;
  * 
  * @throws \Exception
  */
-class Ini extends \Yap\Config
+class Ini extends \Yap\Config\Config
 {
     public function __construct($ini, $selector = null)
     {

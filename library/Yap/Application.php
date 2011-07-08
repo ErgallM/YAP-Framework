@@ -27,12 +27,23 @@ class Application
         return self::$_application;
     }
 
+    /**
+     * Set application config
+     *
+     * @param Config $config
+     * @return Application
+     */
     public function setConfig(\Yap\Config $config)
     {
         $this->_configs = $config;
         return $this;
     }
 
+    /**
+     * Get application config
+     * 
+     * @return null|Config
+     */
     public function getConfig()
     {
         if (null === $this->_configs) {
@@ -40,7 +51,4 @@ class Application
         }
         return $this->_configs;
     }
-
-    
-    
 }

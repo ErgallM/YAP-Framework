@@ -1,5 +1,5 @@
 <?php
-namespace Yap;
+namespace Yap\Config;
 
 /**
  * @throws \Exception
@@ -48,7 +48,7 @@ class Config implements \IteratorAggregate
      * Set values from array
      *
      * @param array $options
-     * @return \Yap\Config
+     * @return \Yap\Config\Config
      */
     public function setFromArray(array $options)
     {

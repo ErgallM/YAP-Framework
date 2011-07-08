@@ -23,7 +23,7 @@ class RouteContainerTest extends PHPUnit_Framework_TestCase
                                                     'defaults' => array('pageNumber' => 1)
                                                ));
 
-        $this->_route3 = new \Yap\Router\RouteStatic(new \Yap\Config(array(
+        $this->_route3 = new \Yap\Router\RouteStatic(new \Yap\Config\Config(array(
                                                                           'name' => 'route3',
                                                                           'route' => '/pages/about.html',
                                                                           'defaults' => array('module' => 'index',

@@ -11,11 +11,11 @@ class RouteStatic implements RouteInterface
 
     public function __construct($options)
     {
-        if ($options instanceof \Yap\Config) {
+        if ($options instanceof \Yap\Config\Config) {
             $options = $options->toArray();
         }
 
-        if (!is_array($options)) throw new \Exception('Options can be array or \Yap\Config, giving "' . gettype($options) . '"');
+        if (!is_array($options)) throw new \Exception('Options can be array or \Yap\Config\Config, giving "' . gettype($options) . '"');
 
         $this->setName($options['name'])
              ->setRoute($options['route']);

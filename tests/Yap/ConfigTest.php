@@ -2,7 +2,7 @@
 class ConfigTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @var \Yap\Config
+     * @var \Yap\Config\Config
      */
     protected $_config;
 
@@ -10,7 +10,7 @@ class ConfigTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->_config = new \Yap\Config(array(
+        $this->_config = new \Yap\Config\Config(array(
                                               'module' => 'default',
                                               'controller' => 'index',
                                               'action' => 'index'

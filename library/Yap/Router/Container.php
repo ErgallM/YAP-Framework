@@ -71,11 +71,11 @@ class Container
 
     public function addRoutes($routes)
     {
-        if ($routes instanceof \Yap\Config) {
+        if ($routes instanceof \Yap\Config\Config) {
             $routes = $routes->toArray();
         }
 
-        if (!is_array($routes)) throw new \Exception("\$routes can be array or \\Yap\\Config, givin '" . gettype($routes) . "'");
+        if (!is_array($routes)) throw new \Exception('$routes can be array or \Yap\Config\Config, givin "' . gettype($routes) . '"');
 
         foreach ($routes as $routeName => $routeData) {
             $this->addRoute(new Route(array_merge(array('name' => $routeName), $routeData)));

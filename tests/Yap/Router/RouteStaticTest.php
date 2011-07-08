@@ -12,7 +12,7 @@ class RouteStaticTest extends PHPUnit_Framework_TestCase
     public function setUp()
     {
         parent::setUp();
-        $this->_route = new \Yap\Router\RouteStatic(new \Yap\Config(array(
+        $this->_route = new \Yap\Router\RouteStatic(new \Yap\Config\Config(array(
                                                    'name' => $this->_name,
                                                    'route' => $this->_routeRegexp,
                                                    'defaults' => array('module' => $this->_module)

@@ -1,7 +1,7 @@
 <?php
 namespace Yap\Config;
 
-class Xml extends \Yap\Config
+class Xml extends \Yap\Config\Config
 {
     public function __construct($xml, $selection = null)
     {
