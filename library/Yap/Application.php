@@ -33,7 +33,7 @@ class Application
      * @param Config $config
      * @return Application
      */
-    public function setConfig(\Yap\Config $config)
+    public function setConfig(\Yap\Config\Config $config)
     {
         $this->_configs = $config;
         return $this;
@@ -47,7 +47,7 @@ class Application
     public function getConfig()
     {
         if (null === $this->_configs) {
-            $this->_configs = new \Yap\Config();
+            $this->_configs = new \Yap\Config\Config();
         }
         return $this->_configs;
     }
