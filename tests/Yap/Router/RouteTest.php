@@ -5,24 +5,42 @@ class RouteTest extends PHPUnit_Framework_TestCase
     
     protected $_routeName = 'test1';
     protected $_routeRegexp = 'page/:pageNumber';
+    /**
+     * @var \Yap\Router\Route
+     */
     protected $_route;
     protected $_pageNumber = 12;
 
     protected $_routeStarRegexp = 'shop/:categoryId/:articleId/*';
+    /**
+     * @var \Yap\Router\Route
+     */
     protected $_routeStar;
     protected $_categoryId = 5;
     protected $_articleId = 10;
     protected $_order = 'name';
 
     protected $_routeStaticRegexp = 'shop';
+    /**
+     * @var \Yap\Router\Route
+     */
     protected $_routeStatic;
 
+    /**
+     * @var \Yap\Router\Route
+     */
     protected $_parterRoute;
     protected $_parterRouteRegexp = 'shop/:categoryId/articles/:articleId';
 
+    /**
+     * @var \Yap\Router\Route
+     */
     protected $_routeEndStat;
     protected $_routeEndStatRegexp = ':module/controller/index';
 
+    /**
+     * @var \Yap\Router\Route
+     */
     protected $_routeDefault;
 
     

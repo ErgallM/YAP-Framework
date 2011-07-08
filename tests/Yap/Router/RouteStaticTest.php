@@ -5,6 +5,9 @@ class RouteStaticTest extends PHPUnit_Framework_TestCase
 
     protected $_routeRegexp = 'pages/about';
 
+    /**
+     * @var \Yap\Router\RouteStatic
+     */
     protected $_route;
 
     protected $_module = 'index';
