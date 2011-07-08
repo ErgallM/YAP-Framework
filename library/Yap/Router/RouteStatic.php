@@ -9,6 +9,10 @@ class RouteStatic implements RouteInterface
     protected $_route = '';
     protected $_defaults = array();
 
+    /**
+     * @throws \Exception
+     * @param \Yap\Config\Config|array $options
+     */
     public function __construct($options)
     {
         if ($options instanceof \Yap\Config\Config) {
@@ -32,11 +36,22 @@ class RouteStatic implements RouteInterface
         return false;
     }
 
+    /**
+     * Get route name
+     *
+     * @return string
+     */
     public function getName()
     {
         return $this->_name;
     }
 
+    /**
+     * Set route name
+     * 
+     * @param string $name
+     * @return \Yap\Router\RouteStatic
+     */
     public function setName($name)
     {
         $this->_name = $name;
@@ -47,7 +62,7 @@ class RouteStatic implements RouteInterface
      * Set default variable
      *
      * @param array $defaults
-     * @return RouteStatic
+     * @return \Yap\Router\RouteStatic
      */
     public function setDefaults(array $defaults)
     {
@@ -69,7 +84,7 @@ class RouteStatic implements RouteInterface
      * Set route string
      *
      * @param string $route
-     * @return Route
+     * @return \Yap\Router\RouteStatic
      */
     public function setRoute($route)
     {

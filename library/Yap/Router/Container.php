@@ -57,7 +57,7 @@ class Container
      * Remove route
      *
      * @param string $name
-     * @return Container
+     * @return \Yap\Router\Container
      */
     public function removeRoute($name)
     {
@@ -69,6 +69,13 @@ class Container
         return $this;
     }
 
+    /**
+     * Add routes
+     * 
+     * @throws \Exception
+     * @param \Yap\Config\Config|array $routes
+     * @return \Yap\Router\Container
+     */
     public function addRoutes($routes)
     {
         if ($routes instanceof \Yap\Config\Config) {
@@ -80,5 +87,7 @@ class Container
         foreach ($routes as $routeName => $routeData) {
             $this->addRoute(new Route(array_merge(array('name' => $routeName), $routeData)));
         }
+
+        return $this;
     }
 }

@@ -30,8 +30,8 @@ class Application
     /**
      * Set application config
      *
-     * @param Config $config
-     * @return Application
+     * @param \Yap\Config\Config $config
+     * @return \Yap\Application
      */
     public function setConfig(\Yap\Config\Config $config)
     {
@@ -42,7 +42,7 @@ class Application
     /**
      * Get application config
      * 
-     * @return null|Config
+     * @return null|\Yap\Config\Config
      */
     public function getConfig()
     {

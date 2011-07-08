@@ -167,7 +167,7 @@ class Route implements RouteInterface
      * Set route name
      *
      * @param string $name
-     * @return Route
+     * @return \Yap\Router\Route
      */
     public function setName($name)
     {
@@ -189,7 +189,7 @@ class Route implements RouteInterface
      * Set default variable
      *
      * @param array $defaults
-     * @return Route
+     * @return \Yap\Router\Route
      */
     public function setDefaults(array $defaults)
     {
@@ -220,7 +220,7 @@ class Route implements RouteInterface
      * Set route string
      *
      * @param string $route
-     * @return Route
+     * @return \Yap\Router\Route
      */
     public function setRoute($route)
     {
@@ -259,17 +259,34 @@ class Route implements RouteInterface
         return $this->_static;
     }
 
+    /**
+     * Set params request
+     * 
+     * @param array $reqs
+     * @return \Yap\Router\Route
+     */
     public function setReqs(array $reqs)
     {
         $this->_reqs = $reqs;
         return $this;
     }
 
+    /**
+     * Get params request
+     * 
+     * @return array
+     */
     public function getReqs()
     {
         return $this->_reqs;
     }
 
+    /**
+     * Using object as function
+     * 
+     * @param $path
+     * @return array|false
+     */
     public function __invoke($path)
     {
         return $this->match($path);

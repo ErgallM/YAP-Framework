@@ -4,7 +4,7 @@ namespace Yap\Router;
 interface RouteInterface
 {
     /**
-     * Проверяет путь на соответствие роутеру
+     * Match url as route
      *
      * @abstract
      * @param string $path
@@ -25,22 +25,29 @@ interface RouteInterface
      *
      * @abstract
      * @param string $name
-     * @return RouteInterface
+     * @return \Yap\Router\RouteInterface
      */
     public function setName($name);
 
     /**
      * Set default variable
+     * 
      * @param array $defaults
      */
     public function setDefaults(array $defaults);
 
     /**
      * Get default variable
-     * @abstract
+     *
      * @return array
      */
     public function getDefaults();
 
+    /**
+     * Using class as function
+     *
+     * @param $path
+     * @return array|false
+     */
     public function __invoke($path);
 }
