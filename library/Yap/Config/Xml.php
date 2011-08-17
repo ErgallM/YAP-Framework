@@ -3,6 +3,8 @@ namespace Yap\Config;
 
 class Xml extends \Yap\Config\Config
 {
+    const XML_NAMESPACE = 'http://yap.ncwlife.ru';
+
     public function __construct($xml, $selection = null)
     {
         $config = $this->_loadXmlFile($xml, $selection);
@@ -11,63 +13,115 @@ class Xml extends \Yap\Config\Config
     
     private function _loadXmlFile($xml, $selector = null)
     {
-        $content = simplexml_load_file($xml);
-        $config = array();
-
-        if (null !== $selector && !$content->$selector) throw new \Exception("Can't found selector '$selector'");
-
-        function parserNode(&$config, \SimpleXMLElement $node, $isArray = false) {
-            $nodeName = $node->getName();
-            $attributes = (array) $node->attributes();
-            if (!empty($attributes)) $attributes = $attributes['@attributes'];
-
-            $nowArray = (!empty($attributes['isArray'])) ? true : false;
-            unset($attributes['isArray']);
-
-            $nodeValue = trim((isset($attributes['value'])) ? (string) $attributes['value'] : (string) $node);
-            unset($attributes['value']);
-
-            if (!isset($config[$nodeName]) && $isArray) $config[$nodeName] = array();
-
-            if (strlen($nodeValue)) {
-                if ($isArray) $config[$nodeName][] = $nodeValue;
-                else $config[$nodeName] = $nodeValue;
-
-                return;
-            }
-
-            foreach ($attributes as $attrName => $attrValue) {
-                if ('extends' == $attrName) {
-                    if (!isset($config[$attrValue])) throw new \Exception("Can't found '$attrValue' selection");
-                    $config[$nodeName] = $config[$attrValue];
-                } else {
-                    $config[$nodeName][$attrName] = $attrValue;
-                }
-            }
-
-            if (!$node->count()) {
-                if (strlen($nodeValue)) {
-                    if ($isArray) {
-                        $config[] = $nodeValue;
-                    } else {
-                        $config[$nodeName][] = $nodeValue;
-                    }
-                }
-            } else {
-                foreach ($node->children() as $child) {
-                    parserNode($config[$nodeName], $child, $nowArray);
-                }
-            }
-        };
-
-        foreach ($content as $node) {
-            parserNode($config, $node);
-
-            if (null !== $selector && $node->getName() == $selector) {
-                return $config[$selector];
-            }
+        // Загрузка xml из строки или файла
+        if ('<?xml' == substr($xml, 0, 5)) {
+            $xmlContent = simplexml_load_string($xml);
+        } else {
+            $xmlContent = simplexml_load_file($xml);
         }
 
+        // Проверяем $selector на существование
+        if (null !== $selector && false === isset($xmlContent->$selector)) {
+            throw new \Exception("Selection '$selector' not found in '$xml'");
+        }
+
+        // Взятие атрибутов в виде массива
+        function getAttributes(\SimpleXmlElement $element)
+        {
+            $attr = (array) $element->attributes();
+            return (isset($attr['@attributes'])) ? $attr['@attributes'] : array();
+        }
+
+        // Сращивание массивов
+        function arrayMerge(array $array1, array $array2)
+        {
+            $result = $array1;
+            foreach ($array2 as $key => $value) {
+                if (is_array($value)) {
+                    if (isset($array1[$key]) && is_array($array1[$key])) {
+                        $result[$key] = arrayMerge($array1[$key], $value);
+                    } else {
+                        $result[$key] = $value;
+                    }
+                } else {
+                    $result[$key] = $value;
+                }
+            }
+            return $result;
+        }
+
+        // Парсинг элемента
+        function parsetNode(\SimpleXmlElement $node, &$nodeName)
+        {
+            $attr = getAttributes($node);
+            if (!empty($attr['name'])) {
+                $nodeName = (string) $attr['name'];
+                unset($attr['name']);
+            }
+            $nodeNameKey = (!empty($attr['key'])) ? (string) $attr['key'] : null;
+            unset($attr['key']);
+
+            $nodeValue = null;
+
+            if (!$node->count()) {
+                $nodeValue = (string) $node;
+                
+                if (!empty($attr['value'])) {
+                    $nodeValue = (string) $attr['value'];
+                    unset($attr['value']);
+                }
+
+                if (sizeof($attr)) {
+                    $nodeValue = (array) $attr;
+                }
+
+                if (null !== $nodeNameKey) {
+                    $nodeValue = array($nodeNameKey => $nodeValue);
+                }
+            } else {
+                $nodeValue = array();
+                foreach ($node->children() as $childrenNodeName => $childrenNode) {
+                    $parserValue = parsetNode($childrenNode, $childrenNodeName);
+
+                    if (!isset($nodeValue[$childrenNodeName])) {
+                        $nodeValue[$childrenNodeName] = array();
+                    }
+
+                    if (is_array($parserValue)) {
+                        $nodeValue[$childrenNodeName] = arrayMerge($nodeValue[$childrenNodeName], $parserValue);
+                    } else {
+                        $nodeValue[$childrenNodeName] = $parserValue;
+                    }
+                }
+            }
+
+            return $nodeValue;
+        }
+
+        $config = array();
+
+        // Обход главного дерева
+        foreach ($xmlContent as $nodeName => $node) {
+            $attr = getAttributes($node);
+            $extendNode = null;
+
+            // Наследование об другой ветки
+            if (!empty($attr['extends'])) {
+                if (!isset($config[$attr['extends']])) {
+                    throw new \Exception("Not found selector '{$attr['extends']}' in $xml for extends to '$nodeName' selector");
+                }
+
+                $extendNode = $config[$attr['extends']];
+            }
+
+            $parserNode = parsetNode($node, $nodeName);
+
+            if (null === $extendNode) {
+                $config[$nodeName] = $parserNode;
+            } else {
+                $config[$nodeName] = arrayMerge($extendNode, $parserNode);
+            }
+        }
         return $config;
     }
 }

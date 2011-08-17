@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root xmlns:yap="http://yap.ncwlife.ru">
+    <public>
+        <varName>var value</varName>
+        <varName2 value="var value 2" />
+        <item name="varName3">var value 3</item>
+
+        <items>
+            <varName>var value</varName>
+
+            <item name="arrayItem" key="1">array item value 1</item>
+            <item name="arrayItem" key="2">array item value 2</item>
+            <arrayItem key="3">array item value 3</arrayItem>
+        </items>
+    </public>
+
+    <debug extends="public">
+        <varName>debug var name</varName>
+        <items>
+            <arrayItem key="2" value="debug array item value 2" />
+        </items>
+    </debug>
+
+    <test><yap:const yap:name="MY_CONST" /></test>
+</root>

@@ -2,11 +2,12 @@ TODO
 
 - Создать xml парсер с возможностью парсить структуру
 
-    <root>
+    <?xml version="1.0" encoding="UTF-8"?>
+    <root xmlns:yap="http://yap.ncwlife.ru">
         <public>
             <varName>var value</varName>
             <varName2 value="var value 2" />
-            <item name="varName3>var value 3</item>
+            <item name="varName3">var value 3</item>
 
             <items>
                 <varName>var value</varName>
@@ -20,14 +21,11 @@ TODO
         <debug extends="public">
             <varName>debug var name</varName>
             <items>
-                <arrayItem key="2" value="debug array item value 2</arrayItem>
+                <arrayItem key="2" value="debug array item value 2" />
             </items>
         </debug>
 
-        <test extends="public">
-            <items value="false" type="bool" />
-            <clearArray type="array"></clearArrray>
-        </test>
+        <test><yap:const yap:name="MY_CONST" /></test>
     </root>
 
 
@@ -45,7 +43,7 @@ TODO
             ["items"]=>
             array(2) {
                 ["varName"]=>
-                string(8) "var name"
+                string(9) "var value"
                 ["arrayItem"]=>
                 array(3) {
                     [1]=>
@@ -60,7 +58,7 @@ TODO
         ["debug"]=>
         array(4) {
             ["varName"]=>
-            string(15) "debug var value"
+            string(14) "debug var name"
             ["varName2"]=>
             string(11) "var value 2"
             ["varName3"]=>
@@ -68,7 +66,7 @@ TODO
             ["items"]=>
             array(2) {
                 ["varName"]=>
-                string(8) "var name"
+                string(9) "var value"
                 ["arrayItem"]=>
                 array(3) {
                     [1]=>
@@ -81,63 +79,41 @@ TODO
             }
         }
         ["test"]=>
-        array(5) {
-            ["varName"]=>
-            string(9) "var value"
-            ["varName2"]=>
-            string(11) "var value 2"
-            ["varName3"]=>
-            string(11) "var value 3"
-            ["items"]=>
-            bool(false)
-            ["clearArray"]=>
-            array(0)
-        }
+        string(0) ""
     }
+
 
     Эквивалент в php
 
-    array(
-        'public' => array(
-            'varName'   => 'var value',
-            'varName2'  => 'var value 2',
-            'varName3'  => 'var value 3',
-
-            'items' => array(
-                'varName' => 'var name',
-
-                'arrayItem' => array(
-                    1 => 'array item value 1',
-                    2 => 'array item value 2',
-                    3 => 'array item value 3'
+    array (
+        "public" => array(
+            "varName" => "var value",
+            "varName2" => "var value 2",
+            "varName3" => "var value 3",
+            "items" => array(
+                "varName" => "var value",
+                "arrayItem" => array(
+                    1 => "array item value 1",
+                    2 => "array item value 2",
+                    3 => "array item value 3"
                 )
             )
-        ),
-
-        'debug' => array(
-            'varName'   => 'debug var value',
-            'varName2'  => 'var value 2',
-            'varName3'  => 'var value 3',
-
-            'items' => array(
-                'varName' => 'var name',
-
-                'arrayItem' => array(
-                    1 => 'array item value 1',
-                    2 => 'debug array item value 2',
-                    3 => 'array item value 3'
+        )
+        "debug" => array(
+            "varName" => "debug var name",
+            "varName2" => "var value 2",
+            "varName3" => "var value 3",
+            "items" => array(
+                "varName" => "var value",
+                "arrayItem" => array(
+                    1 => "array item value 1",
+                    2 => "debug array item value 2",
+                    3 => "array item value 3"
                 )
             )
-        ),
+        )
+        "test" => MY_CONST
+    }
 
-        'test' => array(
-            'varName'   => 'var value',
-            'varName2'  => 'var value 2',
-            'varName3'  => 'var value 3',
 
-            'items'     => false,
-
-            'clearArray' => array()
-        ),
-    )
-
+- Возможность узкаывать php константы определенные через define
