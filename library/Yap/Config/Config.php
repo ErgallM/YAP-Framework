@@ -59,6 +59,10 @@ class Config implements \IteratorAggregate
         return $this;
     }
 
+    /**
+     * @throws \Exception
+     * @param null|string|array $options
+     */
     public function __construct($options = null)
     {
         if ($options instanceof Config) {

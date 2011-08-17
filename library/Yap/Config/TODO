@@ -25,7 +25,9 @@ TODO
             </items>
         </debug>
 
-        <test><yap:const yap:name="MY_CONST" /></test>
+        <test>
+            <varName><yap:const yap:name="MY_CONST" /></varName>
+        </test>
     </root>
 
 
@@ -79,7 +81,10 @@ TODO
             }
         }
         ["test"]=>
-        string(0) ""
+        array(1) {
+            ["varName"]=>
+            string(0) ""
+        }
     }
 
 
@@ -112,8 +117,28 @@ TODO
                 )
             )
         )
-        "test" => MY_CONST
-    }
+        "test" => array(
+            'varName' => MY_CONST
+        )
+    )
+
+    Эквивалент в ini
+
+    [public]
+    varName = "var value"
+    varName2 = "var value 2"
+    varName3 = "var value 3"
+    items.varName = "var value"
+    items.arrayItem.1 = "array item value 1"
+    items.arrayItem.2 = "array item value 2"
+    items.arrayItem.3 = "array item value 3"
+
+    [debug:publuc]
+    varName = "debug var name"
+    items.arrayItem.2 = "debug array item value 2"
+
+    [test]
+    varName = MY_CONST
 
 
 - Возможность узкаывать php константы определенные через define
