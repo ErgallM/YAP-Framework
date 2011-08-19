@@ -142,3 +142,10 @@ TODO
 
 
 - Возможность узкаывать php константы определенные через define
+
+foreach ($xml->item as $entry){
+    //Use that namespace
+    $namespaces = $entry->getNameSpaces(true);
+    $yap = $entry->children($namespaces['yap']);
+    echo $yap->const->getAttribute('name');
+}
