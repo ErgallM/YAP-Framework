@@ -31,20 +31,20 @@ class Xml extends \Yap\Config\Config
         }
 
         // Взятие атрибутов в виде массива
-        function getAttributes(\SimpleXmlElement $element)
+        $getAttributes = function (\SimpleXmlElement $element)
         {
             $attr = (array) $element;
             return (isset($attr['@attributes'])) ? $attr['@attributes'] : array();
-        }
+        };
 
         // Сращивание массивов
-        function arrayMerge(array $array1, array $array2)
+        $arrayMerge = function(array $array1, array $array2)
         {
             $result = $array1;
             foreach ($array2 as $key => $value) {
                 if (is_array($value)) {
                     if (isset($array1[$key]) && is_array($array1[$key])) {
-                        $result[$key] = arrayMerge($array1[$key], $value);
+                        $result[$key] = $arrayMerge($array1[$key], $value);
                     } else {
                         $result[$key] = $value;
                     }
@@ -53,12 +53,12 @@ class Xml extends \Yap\Config\Config
                 }
             }
             return $result;
-        }
+        };
 
         // Парсинг элемента
-        function parsetNode(\SimpleXmlElement $node, &$nodeName)
+        $parsetNode = function(\SimpleXmlElement $node, &$nodeName) use($getAttributes)
         {
-            $attr = getAttributes($node);
+            $attr = $getAttributes($node);
             if (!empty($attr['name'])) {
                 $nodeName = (string) $attr['name'];
                 unset($attr['name']);
@@ -85,7 +85,7 @@ class Xml extends \Yap\Config\Config
                     $yap = $node->children($namespace['yap']);
 
                     if (isset($yap->const)) {
-                        $yapAttr = getAttributes($yap->const);
+                        $yapAttr = $getAttributes($yap->const);
 
                         if (!isset($yapAttr['name'])) throw new \Exception("Const can't have a name");
 
@@ -112,7 +112,7 @@ class Xml extends \Yap\Config\Config
                     }
 
                     if (is_array($parserValue)) {
-                        $nodeValue[$childrenNodeName] = arrayMerge($nodeValue[$childrenNodeName], $parserValue);
+                        $nodeValue[$childrenNodeName] = $arrayMerge($nodeValue[$childrenNodeName], $parserValue);
                     } else {
                         $nodeValue[$childrenNodeName] = $parserValue;
                     }
@@ -120,13 +120,13 @@ class Xml extends \Yap\Config\Config
             }
 
             return $nodeValue;
-        }
+        };
 
         $config = array();
 
         // Обход главного дерева
         foreach ($xmlContent as $nodeName => $node) {
-            $attr = getAttributes($node);
+            $attr = $getAttributes($node);
             $extendNode = null;
 
             // Наследование об другой ветки
@@ -142,17 +142,17 @@ class Xml extends \Yap\Config\Config
             $nodeNameKey = (!empty($attr[\Yap\Config\Xml::$_XML_ELEMENT_ARRAY_KEY_NAME])) ? (string) $attr[\Yap\Config\Xml::$_XML_ELEMENT_ARRAY_KEY_NAME] : null;
             unset($attr[\Yap\Config\Xml::$_XML_ELEMENT_ARRAY_KEY_NAME]);
 
-            $parserNode = parsetNode($node, $nodeName);
+            $parserNode = $parsetNode($node, $nodeName);
 
             if (null === $extendNode) {
                 if (null != $nodeNameKey) {
                     if (!isset($config[$nodeName]) || !is_array($config[$nodeName])) $config[$nodeName] = array();
-                    $config[$nodeName] = arrayMerge($config[$nodeName], $parserNode);
+                    $config[$nodeName] = $arrayMerge($config[$nodeName], $parserNode);
                 } else {
                     $config[$nodeName] = $parserNode;
                 }
             } else {
-                $config[$nodeName] = arrayMerge($extendNode, $parserNode);
+                $config[$nodeName] = $arrayMerge($extendNode, $parserNode);
             }
         }
         return $config;
