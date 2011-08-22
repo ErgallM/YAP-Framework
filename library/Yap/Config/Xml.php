@@ -5,6 +5,11 @@ class Xml extends \Yap\Config\Config
 {
     const XML_NAMESPACE = 'http://yap.ncwlife.ru';
 
+    /**
+     * Ключ для индекса массива одноименных элементов
+     */
+    public static $_XML_ELEMENT_ARRAY_KEY_NAME = 'key';
+
     public function __construct($xml, $selection = null)
     {
         $config = $this->_loadXmlFile($xml, $selection);
@@ -28,7 +33,7 @@ class Xml extends \Yap\Config\Config
         // Взятие атрибутов в виде массива
         function getAttributes(\SimpleXmlElement $element)
         {
-            $attr = (array) $element->attributes();
+            $attr = (array) $element;
             return (isset($attr['@attributes'])) ? $attr['@attributes'] : array();
         }
 
@@ -58,8 +63,8 @@ class Xml extends \Yap\Config\Config
                 $nodeName = (string) $attr['name'];
                 unset($attr['name']);
             }
-            $nodeNameKey = (!empty($attr['key'])) ? (string) $attr['key'] : null;
-            unset($attr['key']);
+            $nodeNameKey = (!empty($attr[\Yap\Config\Xml::$_XML_ELEMENT_ARRAY_KEY_NAME])) ? (string) $attr[\Yap\Config\Xml::$_XML_ELEMENT_ARRAY_KEY_NAME] : null;
+            unset($attr[\Yap\Config\Xml::$_XML_ELEMENT_ARRAY_KEY_NAME]);
 
             $nodeValue = null;
 
@@ -73,6 +78,25 @@ class Xml extends \Yap\Config\Config
 
                 if (sizeof($attr)) {
                     $nodeValue = (array) $attr;
+                }
+
+                $namespace = $node->getNamespaces(true);
+                if (isset($namespace['yap'])) {
+                    $yap = $node->children($namespace['yap']);
+
+                    if (isset($yap->const)) {
+                        $yapAttr = getAttributes($yap->const);
+
+                        if (!isset($yapAttr['name'])) throw new \Exception("Const can't have a name");
+
+                        $constName = $yapAttr['name'];
+                        if (defined($constName)) {
+                            $defVars = \get_defined_constants();
+                            $nodeValue .= $defVars[$constName];
+                        } else {
+                            $nodeValue .= $constName;
+                        }
+                    }
                 }
 
                 if (null !== $nodeNameKey) {
@@ -114,10 +138,19 @@ class Xml extends \Yap\Config\Config
                 $extendNode = $config[$attr['extends']];
             }
 
+            // Определение ключей массива одноименных элементов
+            $nodeNameKey = (!empty($attr[\Yap\Config\Xml::$_XML_ELEMENT_ARRAY_KEY_NAME])) ? (string) $attr[\Yap\Config\Xml::$_XML_ELEMENT_ARRAY_KEY_NAME] : null;
+            unset($attr[\Yap\Config\Xml::$_XML_ELEMENT_ARRAY_KEY_NAME]);
+
             $parserNode = parsetNode($node, $nodeName);
 
             if (null === $extendNode) {
-                $config[$nodeName] = $parserNode;
+                if (null != $nodeNameKey) {
+                    if (!isset($config[$nodeName]) || !is_array($config[$nodeName])) $config[$nodeName] = array();
+                    $config[$nodeName] = arrayMerge($config[$nodeName], $parserNode);
+                } else {
+                    $config[$nodeName] = $parserNode;
+                }
             } else {
                 $config[$nodeName] = arrayMerge($extendNode, $parserNode);
             }
