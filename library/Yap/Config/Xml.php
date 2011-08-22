@@ -56,7 +56,7 @@ class Xml extends \Yap\Config\Config
         };
 
         // Парсинг элемента
-        $parsetNode = function(\SimpleXmlElement $node, &$nodeName) use($getAttributes)
+        $parseNode = function(\SimpleXmlElement $node, &$nodeName) use($getAttributes)
         {
             $attr = $getAttributes($node);
             if (!empty($attr['name'])) {
@@ -105,7 +105,7 @@ class Xml extends \Yap\Config\Config
             } else {
                 $nodeValue = array();
                 foreach ($node->children() as $childrenNodeName => $childrenNode) {
-                    $parserValue = parsetNode($childrenNode, $childrenNodeName);
+                    $parserValue = parseNode($childrenNode, $childrenNodeName);
 
                     if (!isset($nodeValue[$childrenNodeName])) {
                         $nodeValue[$childrenNodeName] = array();
@@ -142,7 +142,7 @@ class Xml extends \Yap\Config\Config
             $nodeNameKey = (!empty($attr[\Yap\Config\Xml::$_XML_ELEMENT_ARRAY_KEY_NAME])) ? (string) $attr[\Yap\Config\Xml::$_XML_ELEMENT_ARRAY_KEY_NAME] : null;
             unset($attr[\Yap\Config\Xml::$_XML_ELEMENT_ARRAY_KEY_NAME]);
 
-            $parserNode = $parsetNode($node, $nodeName);
+            $parserNode = $parseNode($node, $nodeName);
 
             if (null === $extendNode) {
                 if (null != $nodeNameKey) {
