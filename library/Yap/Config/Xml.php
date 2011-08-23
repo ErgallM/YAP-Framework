@@ -63,9 +63,6 @@ class Xml extends \Yap\Config\Config
 
                 foreach($dom->childNodes as $childrenNode) {
                     if ($childrenNode instanceof \DOMElement && $childrenNode->namespaceURI == self::XML_NAMESPACE) {
-                        /**
-                         * @var \DOMElement $childrenNode
-                         */
                         if ('const' == $childrenNode->localName && $childrenNode->hasAttributeNS(self::XML_NAMESPACE, 'name')) {
                             $constName = $childrenNode->getAttributeNS(self::XML_NAMESPACE, 'name');
                             if (!defined($constName)) {
@@ -85,7 +82,9 @@ class Xml extends \Yap\Config\Config
                 }
             }
 
-
+            if (null !== $nodeNameKey) {
+                $nodeValue = array($nodeNameKey => $nodeValue);
+            }
 
         } else {
             $nodeValue = array();
