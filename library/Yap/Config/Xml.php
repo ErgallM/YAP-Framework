@@ -8,7 +8,7 @@ class Xml extends \Yap\Config\Config
     /**
      * Ключ для индекса массива одноименных элементов
      */
-    public static $_XML_ELEMENT_ARRAY_KEY_NAME = 'key';
+    protected $_XML_ELEMENT_ARRAY_KEY_NAME = 'key';
 
     public function __construct($xml, $selection = null)
     {
@@ -55,16 +55,18 @@ class Xml extends \Yap\Config\Config
             return $result;
         };
 
+        $_XML_ELEMENT_ARRAY_KEY_NAME = $this->_XML_ELEMENT_ARRAY_KEY_NAME;
+
         // Парсинг элемента
-        $parseNode = function(\SimpleXmlElement $node, &$nodeName) use($getAttributes)
+        $parseNode = function(\SimpleXmlElement $node, &$nodeName) use ($getAttributes, $_XML_ELEMENT_ARRAY_KEY_NAME)
         {
             $attr = $getAttributes($node);
             if (!empty($attr['name'])) {
                 $nodeName = (string) $attr['name'];
                 unset($attr['name']);
             }
-            $nodeNameKey = (!empty($attr[\Yap\Config\Xml::$_XML_ELEMENT_ARRAY_KEY_NAME])) ? (string) $attr[\Yap\Config\Xml::$_XML_ELEMENT_ARRAY_KEY_NAME] : null;
-            unset($attr[\Yap\Config\Xml::$_XML_ELEMENT_ARRAY_KEY_NAME]);
+            $nodeNameKey = (!empty($attr[$_XML_ELEMENT_ARRAY_KEY_NAME])) ? (string) $attr[$_XML_ELEMENT_ARRAY_KEY_NAME] : null;
+            unset($attr[$_XML_ELEMENT_ARRAY_KEY_NAME]);
 
             $nodeValue = null;
 
@@ -139,8 +141,8 @@ class Xml extends \Yap\Config\Config
             }
 
             // Определение ключей массива одноименных элементов
-            $nodeNameKey = (!empty($attr[\Yap\Config\Xml::$_XML_ELEMENT_ARRAY_KEY_NAME])) ? (string) $attr[\Yap\Config\Xml::$_XML_ELEMENT_ARRAY_KEY_NAME] : null;
-            unset($attr[\Yap\Config\Xml::$_XML_ELEMENT_ARRAY_KEY_NAME]);
+            $nodeNameKey = (!empty($attr[$_XML_ELEMENT_ARRAY_KEY_NAME])) ? (string) $attr[$_XML_ELEMENT_ARRAY_KEY_NAME] : null;
+            unset($attr[$_XML_ELEMENT_ARRAY_KEY_NAME]);
 
             $parserNode = $parseNode($node, $nodeName);
 
