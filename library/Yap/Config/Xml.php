@@ -15,6 +15,98 @@ class Xml extends \Yap\Config\Config
         $config = $this->_loadXmlFile($xml, $selection);
         parent::__construct($config);
     }
+
+    // Взятие атрибутов в виде массива
+    private function getAttributes(\SimpleXmlElement $element)
+    {
+        $attr = (array) $element;
+        return (isset($attr['@attributes'])) ? $attr['@attributes'] : array();
+    }
+
+    // Сращивание массивов
+    private function arrayMerge(array $array1, array $array2)
+    {
+        $result = $array1;
+        foreach ($array2 as $key => $value) {
+            if (is_array($value)) {
+                if (isset($array1[$key]) && is_array($array1[$key])) {
+                    $result[$key] = $this->arrayMerge($array1[$key], $value);
+                } else {
+                    $result[$key] = $value;
+                }
+            } else {
+                $result[$key] = $value;
+            }
+        }
+        return $result;
+    }
+
+    // Парсинг элемента
+    private function parseNode(\SimpleXmlElement $node, &$nodeName)
+    {
+        $attr = $this->getAttributes($node);
+        if (!empty($attr['name'])) {
+            $nodeName = (string) $attr['name'];
+            unset($attr['name']);
+        }
+        $nodeNameKey = (!empty($attr[$this->_XML_ELEMENT_ARRAY_KEY_NAME])) ? (string) $attr[$this->_XML_ELEMENT_ARRAY_KEY_NAME] : null;
+        unset($attr[$this->_XML_ELEMENT_ARRAY_KEY_NAME]);
+
+        $nodeValue = null;
+
+        if (!$node->count()) {
+            $nodeValue = (string) $node;
+
+            if (!empty($attr['value'])) {
+                $nodeValue = (string) $attr['value'];
+                unset($attr['value']);
+            }
+
+            if (sizeof($attr)) {
+                $nodeValue = (array) $attr;
+            }
+
+            $namespace = $node->getNamespaces(true);
+            if (isset($namespace['yap'])) {
+                $yap = $node->children($namespace['yap']);
+
+                if (isset($yap->const)) {
+                    $yapAttr = $this->getAttributes($yap->const);
+
+                    if (!isset($yapAttr['name'])) throw new \Exception("Const can't have a name");
+
+                    $constName = $yapAttr['name'];
+                    if (defined($constName)) {
+                        $defVars = \get_defined_constants();
+                        $nodeValue .= $defVars[$constName];
+                    } else {
+                        $nodeValue .= $constName;
+                    }
+                }
+            }
+
+            if (null !== $nodeNameKey) {
+                $nodeValue = array($nodeNameKey => $nodeValue);
+            }
+        } else {
+            $nodeValue = array();
+            foreach ($node->children() as $childrenNodeName => $childrenNode) {
+                $parserValue = $this->parseNode($childrenNode, $childrenNodeName);
+
+                if (!isset($nodeValue[$childrenNodeName])) {
+                    $nodeValue[$childrenNodeName] = array();
+                }
+
+                if (is_array($parserValue)) {
+                    $nodeValue[$childrenNodeName] = $this->arrayMerge($nodeValue[$childrenNodeName], $parserValue);
+                } else {
+                    $nodeValue[$childrenNodeName] = $parserValue;
+                }
+            }
+        }
+
+        return $nodeValue;
+    }
     
     private function _loadXmlFile($xml, $selector = null)
     {
@@ -30,105 +122,11 @@ class Xml extends \Yap\Config\Config
             throw new \Exception("Selection '$selector' not found in '$xml'");
         }
 
-        // Взятие атрибутов в виде массива
-        $getAttributes = function (\SimpleXmlElement $element)
-        {
-            $attr = (array) $element;
-            return (isset($attr['@attributes'])) ? $attr['@attributes'] : array();
-        };
-
-        // Сращивание массивов
-        $arrayMerge = function(array $array1, array $array2)
-        {
-            $result = $array1;
-            foreach ($array2 as $key => $value) {
-                if (is_array($value)) {
-                    if (isset($array1[$key]) && is_array($array1[$key])) {
-                        $result[$key] = $arrayMerge($array1[$key], $value);
-                    } else {
-                        $result[$key] = $value;
-                    }
-                } else {
-                    $result[$key] = $value;
-                }
-            }
-            return $result;
-        };
-
-        $_XML_ELEMENT_ARRAY_KEY_NAME = $this->_XML_ELEMENT_ARRAY_KEY_NAME;
-
-        // Парсинг элемента
-        $parseNode = function(\SimpleXmlElement $node, &$nodeName) use ($getAttributes, $_XML_ELEMENT_ARRAY_KEY_NAME)
-        {
-            $attr = $getAttributes($node);
-            if (!empty($attr['name'])) {
-                $nodeName = (string) $attr['name'];
-                unset($attr['name']);
-            }
-            $nodeNameKey = (!empty($attr[$_XML_ELEMENT_ARRAY_KEY_NAME])) ? (string) $attr[$_XML_ELEMENT_ARRAY_KEY_NAME] : null;
-            unset($attr[$_XML_ELEMENT_ARRAY_KEY_NAME]);
-
-            $nodeValue = null;
-
-            if (!$node->count()) {
-                $nodeValue = (string) $node;
-                
-                if (!empty($attr['value'])) {
-                    $nodeValue = (string) $attr['value'];
-                    unset($attr['value']);
-                }
-
-                if (sizeof($attr)) {
-                    $nodeValue = (array) $attr;
-                }
-
-                $namespace = $node->getNamespaces(true);
-                if (isset($namespace['yap'])) {
-                    $yap = $node->children($namespace['yap']);
-
-                    if (isset($yap->const)) {
-                        $yapAttr = $getAttributes($yap->const);
-
-                        if (!isset($yapAttr['name'])) throw new \Exception("Const can't have a name");
-
-                        $constName = $yapAttr['name'];
-                        if (defined($constName)) {
-                            $defVars = \get_defined_constants();
-                            $nodeValue .= $defVars[$constName];
-                        } else {
-                            $nodeValue .= $constName;
-                        }
-                    }
-                }
-
-                if (null !== $nodeNameKey) {
-                    $nodeValue = array($nodeNameKey => $nodeValue);
-                }
-            } else {
-                $nodeValue = array();
-                foreach ($node->children() as $childrenNodeName => $childrenNode) {
-                    $parserValue = parseNode($childrenNode, $childrenNodeName);
-
-                    if (!isset($nodeValue[$childrenNodeName])) {
-                        $nodeValue[$childrenNodeName] = array();
-                    }
-
-                    if (is_array($parserValue)) {
-                        $nodeValue[$childrenNodeName] = $arrayMerge($nodeValue[$childrenNodeName], $parserValue);
-                    } else {
-                        $nodeValue[$childrenNodeName] = $parserValue;
-                    }
-                }
-            }
-
-            return $nodeValue;
-        };
-
         $config = array();
 
         // Обход главного дерева
         foreach ($xmlContent as $nodeName => $node) {
-            $attr = $getAttributes($node);
+            $attr = $this->getAttributes($node);
             $extendNode = null;
 
             // Наследование об другой ветки
@@ -141,20 +139,20 @@ class Xml extends \Yap\Config\Config
             }
 
             // Определение ключей массива одноименных элементов
-            $nodeNameKey = (!empty($attr[$_XML_ELEMENT_ARRAY_KEY_NAME])) ? (string) $attr[$_XML_ELEMENT_ARRAY_KEY_NAME] : null;
-            unset($attr[$_XML_ELEMENT_ARRAY_KEY_NAME]);
+            $nodeNameKey = (!empty($attr[$this->_XML_ELEMENT_ARRAY_KEY_NAME])) ? (string) $attr[$this->_XML_ELEMENT_ARRAY_KEY_NAME] : null;
+            unset($attr[$this->_XML_ELEMENT_ARRAY_KEY_NAME]);
 
-            $parserNode = $parseNode($node, $nodeName);
+            $parserNode = $this->parseNode($node, $nodeName);
 
             if (null === $extendNode) {
                 if (null != $nodeNameKey) {
                     if (!isset($config[$nodeName]) || !is_array($config[$nodeName])) $config[$nodeName] = array();
-                    $config[$nodeName] = $arrayMerge($config[$nodeName], $parserNode);
+                    $config[$nodeName] = $this->arrayMerge($config[$nodeName], $parserNode);
                 } else {
                     $config[$nodeName] = $parserNode;
                 }
             } else {
-                $config[$nodeName] = $arrayMerge($extendNode, $parserNode);
+                $config[$nodeName] = $this->arrayMerge($extendNode, $parserNode);
             }
         }
         return $config;
