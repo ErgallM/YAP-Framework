@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root xmlns:yap="http://yap.ncwlife.ru">
+    <!--
     <public>
         <varName>var value</varName>
         <varName2 value="var value 2" />
@@ -20,6 +21,7 @@
             <arrayItem key="2" value="debug array item value 2" />
         </items>
     </debug>
+    -->
 
     <test><yap:const yap:name="APPLICATION_PATH" />/configs/application.xml</test>
 </root>

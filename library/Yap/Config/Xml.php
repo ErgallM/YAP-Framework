@@ -55,39 +55,38 @@ class Xml extends \Yap\Config\Config
         $nodeValue = null;
 
         if (!$node->count()) {
-            $nodeValue = (string) $node;
 
-            if (!empty($attr['value'])) {
-                $nodeValue = (string) $attr['value'];
-                unset($attr['value']);
-            }
+            $nodeValue = '';
 
-            if (sizeof($attr)) {
-                $nodeValue = (array) $attr;
-            }
+            if ($node->children(self::XML_NAMESPACE)->count()) {
+                $dom = dom_import_simplexml($node);
 
-            $namespace = $node->getNamespaces(true);
-            if (isset($namespace['yap'])) {
-                $yap = $node->children($namespace['yap']);
+                foreach($dom->childNodes as $childrenNode) {
+                    if ($childrenNode instanceof \DOMElement && $childrenNode->namespaceURI == self::XML_NAMESPACE) {
+                        /**
+                         * @var \DOMElement $childrenNode
+                         */
+                        if ('const' == $childrenNode->localName && $childrenNode->hasAttributeNS(self::XML_NAMESPACE, 'name')) {
+                            $constName = $childrenNode->getAttributeNS(self::XML_NAMESPACE, 'name');
+                            if (!defined($constName)) {
+                                throw new \Exception("Constant '{$constName}' was not defined");
+                            }
 
-                if (isset($yap->const)) {
-                    $yapAttr = $this->getAttributes($yap->const);
-
-                    if (!isset($yapAttr['name'])) throw new \Exception("Const can't have a name");
-
-                    $constName = $yapAttr['name'];
-                    if (defined($constName)) {
-                        $defVars = \get_defined_constants();
-                        $nodeValue .= $defVars[$constName];
-                    } else {
-                        $nodeValue .= $constName;
+                            $dom->replaceChild(new \DOMText(constant($constName)), $childrenNode);
+                        }
                     }
+                }
+                $nodeValue = (string) simplexml_import_dom($dom);
+            } else {
+                if (isset($attr['value'])) {
+                    $nodeValue = $attr['value'];
+                } else {
+                    $nodeValue = (string) $node;
                 }
             }
 
-            if (null !== $nodeNameKey) {
-                $nodeValue = array($nodeNameKey => $nodeValue);
-            }
+
+
         } else {
             $nodeValue = array();
             foreach ($node->children() as $childrenNodeName => $childrenNode) {
