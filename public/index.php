@@ -8,5 +8,8 @@ set_include_path(realpath(__DIR__ . '/../library') . PATH_SEPARATOR . get_includ
 require_once 'Yap/Loader.php';
 \Yap\Loader::initAutoloader();
 
+$config = new \Yap\Config\Xml(APPLICATION_PATH . '/configs/application.xml');
+var_dump($config->toArray());
+
 
 echo 'time: ' . round(microtime(true) - $time_start, 10) . PHP_EOL;
