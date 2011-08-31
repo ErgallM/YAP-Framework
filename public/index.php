@@ -8,8 +8,12 @@ set_include_path(realpath(__DIR__ . '/../library') . PATH_SEPARATOR . get_includ
 require_once 'Yap/Loader.php';
 \Yap\Loader::initAutoloader();
 
+$em = new \Yap\Event\EventManager();
+$em->addEvent('myEvent', function($name = null) {
+        return 'this is my event' . $name;
+    });
 
-$config = new \Yap\Config\Xml(APPLICATION_PATH . '/configs/application.xml');
-var_dump($config->toArray());
+echo $em->myEvent('my adata') . PHP_EOL;
+
 
 echo 'time: ' . round(microtime(true) - $time_start, 10) . PHP_EOL;
