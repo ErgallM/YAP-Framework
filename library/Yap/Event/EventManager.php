@@ -3,31 +3,87 @@ namespace Yap\Event;
 
 class EventManager
 {
-    protected static $_events = array();
+    protected static $_instance = null;
 
-    public function addEvent($name, $event)
+    protected $_events = array();
+
+    /**
+     * @static
+     * @return \Yap\Event\EventManager
+     */
+    public static function getInstance()
     {
-        if (!is_callable($event)) {
-            throw new \Exception("Event '$name' isn't callable");
+        if (null === self::$_instance) {
+            self::$_instance = new self();
+        }
+        return self::$_instance;
+    }
+
+    /**
+     * @throws \Exception
+     * @param string|\Yap\Event\Event $name
+     * @param null|callback|\Yap\Event\Event $event
+     * @return \Yap\Event\EventManager
+     */
+    public function addEvent($name, $event = null)
+    {
+        if ($name instanceof Event) {
+            $event = $name;
+            $name = $event->getName();
         }
 
-        if (is_object($name)) {
-            $name = str_replace(array('\\', '/', '_'), '-', $name);
-        } else {
-            $name = (string) $name;
+        if (!is_callable($event) && !$event instanceof Event) {
+            throw new \Exception("Event must be Closure or Event object, giving '" . gettype($event) . "'");
         }
 
-        self::$_events[$name] = $event;
+        if (is_callable($event)) {
+            $event = new Event((string) $name, $event);
+        }
+
+        $this->_events[$name] = $event;
         return $this;
     }
 
-    public function __call($name, $arguments)
+    /**
+     * @param string $name
+     * @return null|\Yap\Event\Event
+     */
+    public function getEvent($name)
     {
-        if (isset(self::$_events[$name])) {
-            $handel = self::$_events[$name];
-            return call_user_func_array($handel, $arguments);
+        if (isset($this->_events[$name])) {
+            return $this->_events[$name];
         }
-
         return null;
+    }
+
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return void
+     */
+    public function __call($name, array $arguments = array())
+    {
+        $event = $this->getEvent($name);
+        if ($event instanceof Event) {
+            $event($arguments);
+        }
+    }
+
+    /**
+     * @param string $name
+     * @return null|\Yap\Event\Event
+     */
+    public function __get($name)
+    {
+        return (isset($this->_events[$name])) ? $this->_events[$name] : null;
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function __isset($name)
+    {
+        return (bool) isset($this->_events[$name]);
     }
 }
