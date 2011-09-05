@@ -10,6 +10,9 @@ class Event
     protected $_append = array();
     protected $_prepend = array();
 
+    const EVENT_APPEND = 'append';
+    const EVENT_PREPEND = 'prepend';
+
     /**
      * @throws \Exception
      * @param string $name
@@ -117,4 +120,27 @@ class Event
     {
         $this->exec($argiments);
     }
+
+    /**
+     * @param $name
+     * @param null|string $type
+     * @return Event
+     */
+    public function deleteLink($name, $type = null)
+    {
+        if (self::EVENT_APPEND == $type || null == $type) {
+            foreach ($this->_append as $key => $eventName) {
+                if ($eventName == $name) unset($this->_append[$key]);
+            }
+        }
+
+        if (self::EVENT_PREPEND == $type || null == $type) {
+            foreach ($this->_prepend as $key => $eventName) {
+                if ($eventName == $name) unset($this->_prepend[$key]);
+            }
+        }
+
+        return $this;
+    }
+
 }

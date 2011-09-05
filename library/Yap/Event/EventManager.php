@@ -7,6 +7,8 @@ class EventManager
 
     protected $_events = array();
 
+    const DEBUG = true;
+
     /**
      * @static
      * @return \Yap\Event\EventManager
@@ -65,6 +67,9 @@ class EventManager
     {
         $event = $this->getEvent($name);
         if ($event instanceof Event) {
+            // @todo DEBUG track
+            if (self::DEBUG) echo $event->getName() . PHP_EOL;
+
             $event($arguments);
         }
     }
@@ -85,5 +90,15 @@ class EventManager
     public function __isset($name)
     {
         return (bool) isset($this->_events[$name]);
+    }
+
+    /**
+     * @param $name
+     * @return EventManager
+     */
+    public function delete($name)
+    {
+        unset($this->_events[$name]);
+        return $this;
     }
 }
