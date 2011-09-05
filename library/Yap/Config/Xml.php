@@ -77,8 +77,18 @@ class Xml extends \Yap\Config\Config
             } else {
                 if (isset($attr['value'])) {
                     $nodeValue = $attr['value'];
+                    unset($attr['value']);
                 } else {
                     $nodeValue = (string) $node;
+                }
+            }
+
+            if (sizeof($attr)) {
+                if (!empty($nodeValue)) {
+                    $nodeValue = array('value' => $nodeValue);
+                }
+                foreach ($attr as $key => $value) {
+                    $nodeValue[$key] = $value;
                 }
             }
 
