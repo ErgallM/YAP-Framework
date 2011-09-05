@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<routers>
+    <default>
+        <route>*</route>
+        <defaults module="default" controller="index" action="index" />
+    </default>
+    <pages>
+        <route>pages/:pageId</route>
+        <defaults module="default" controller="index" action="page" />
+    </pages>
+</routers>
