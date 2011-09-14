@@ -8,11 +8,6 @@ set_include_path(realpath(__DIR__ . '/../library') . PATH_SEPARATOR . get_includ
 require_once 'Yap/Loader.php';
 \Yap\Loader::initAutoloader();
 
-$config = new \Yap\Config\Xml(APPLICATION_PATH . '/configs/router.xml');
-
-$d = \Yap\Application\Dispatcher::getInstance();
-$d->getRouter()->addRoutes($config);
-$d->dispatch('t');
-
+$ev = new \Yap\Event\Event('test');
 
 echo 'time: ' . round(microtime(true) - $time_start, 10) . PHP_EOL;
